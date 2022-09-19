@@ -1,9 +1,9 @@
 // Localisations extérieures.
-const VERSION_FILE_URL = "/campus/version.txt";
-const API_BASE_URL = "/v2.0/university/";
+const VERSION_FILE_URL = "/version.txt";
+const API_BASE_URL = "https://api.bde-tribu-terre.fr/v2.0/university/";
 
 // Instanciation de l'objet carte.
-let campusMap = L.map('carte');
+let campusMap = L.map('map');
 
 // Initialisation du visuel, via l'API Mapbox. Le token est public : lecture seule.
 L.tileLayer(
@@ -99,9 +99,19 @@ if (searchParams.has("buildings")) { // Si oui alors on n'affiche qu'eux.
     });
 
     // On cherche tous les groupes de bâtiments quand même pour pouvoir avoir les couleurs.
-    fetch(API_BASE_URL + "buildingGroup").then(response => response.json().then(value => {
+    fetch(API_BASE_URL + "buildingGroup", {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    }).then(response => response.json().then(value => {
         // Grâce à la liste des ID des groupes de bâtiments, on peut chercher les groupes précis pour avoir les bâtiments.
-        fetch(API_BASE_URL + "buildingGroup/?id=" + value.data.objects.join(",")).then(response => response.json().then(value => {
+        fetch(API_BASE_URL + "buildingGroup/?id=" + value.data.objects.join(","), {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        }).then(response => response.json().then(value => {
             value.data.objects.forEach(object => {
                 buildingGroupsColors[object.building_group_id] = object.color.hex;
             });
@@ -114,9 +124,19 @@ if (searchParams.has("buildings")) { // Si oui alors on n'affiche qu'eux.
     let buildingsToFetch = [];
 
     // On cherche tous les groupes de bâtiments.
-    fetch(API_BASE_URL + "buildingGroup").then(response => response.json().then(value => {
+    fetch(API_BASE_URL + "buildingGroup/", {
+        method: "GET",
+        headers: {
+            "Accept": "application/json"
+        }
+    }).then(response => response.json().then(value => {
         // Grâce à la liste des ID des groupes de bâtiments, on peut chercher les groupes précis pour avoir les bâtiments.
-        fetch(API_BASE_URL + "buildingGroup/?id=" + value.data.objects.join(",")).then(response => response.json().then(value => {
+        fetch(API_BASE_URL + "buildingGroup/?id=" + value.data.objects.join(","), {
+            method: "GET",
+            headers: {
+                "Accept": "application/json"
+            }
+        }).then(response => response.json().then(value => {
             value.data.objects.forEach(object => {
                 object.buildings.forEach(value => buildingsToFetch.push(value))
                 buildingGroupsColors[object.building_group_id] = object.color.hex;
@@ -134,7 +154,12 @@ function fetchBuildings(buildingsToFetch) {
         nextBuildintFetch.push(buildingsToFetch[i]);
 
         if (i === buildingsToFetch.length - 1 || (i + 1) % 20 === 0) {
-            fetch(API_BASE_URL + "building/?geoJson&id=" + nextBuildintFetch.join(",")).then(response => response.json().then(value => {
+            fetch(API_BASE_URL + "building/?geoJson&id=" + nextBuildintFetch.join(","), {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            }).then(response => response.json().then(value => {
                 value.data.objects.forEach(object => {
                     L.geoJSON(
                         {
