@@ -99,7 +99,7 @@ if (searchParams.has("buildings")) { // Si oui alors on n'affiche qu'eux.
     });
 
     // On cherche tous les groupes de bâtiments quand même pour pouvoir avoir les couleurs.
-    fetch(API_BASE_URL + "buildingGroup", {
+    fetch(API_BASE_URL + "buildingGroup/", {
         method: "GET",
         headers: {
             "Accept": "application/json"
